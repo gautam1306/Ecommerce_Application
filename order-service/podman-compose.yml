@@ -1,0 +1,13 @@
+version: "4"
+services:
+  mysql:
+    image: mysql:8.0.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: service123
+    ports:
+      - "3306:3306"
+    volumes:
+      # Windows: use a relative folder (in same dir as this yml)
+      - ./mysql-data:/data/db
+      - ./container/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
