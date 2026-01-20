@@ -23,4 +23,15 @@ public class Order {
     private String skuCode;
     private BigDecimal price;
     private Integer quantity;
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", orderNumber='" + orderNumber + '\'' +
+                ", skuCode='" + skuCode + '\'' +
+                ", price=" + price +
+                ", quantity=" + quantity +
+                '}';
+    }
 }

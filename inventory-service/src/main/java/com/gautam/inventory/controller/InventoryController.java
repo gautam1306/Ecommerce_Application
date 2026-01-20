@@ -1,10 +1,9 @@
 package com.gautam.inventory.controller;
 
+import com.gautam.inventory.dto.InventoryRequest;
 import com.gautam.inventory.service.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,4 +17,11 @@ public class InventoryController {
     public boolean isInStock(@RequestParam String skuCode, @RequestParam int quantity){
         return inventoryService.isInStock(skuCode, quantity);
     }
+
+    @PostMapping
+    public boolean addStock(@RequestBody InventoryRequest inventoryRequest){
+        return inventoryService.addStock(inventoryRequest);
+    }
+
+
 }

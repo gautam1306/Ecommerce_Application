@@ -2,10 +2,12 @@ package com.gautam.order.service;
 
 import com.gautam.order.client.InventoryClient;
 import com.gautam.order.model.Order;
+import com.gautam.order.dto.OrderRequest;
 import com.gautam.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -27,5 +29,9 @@ public class OrderService {
         }
 
 
+    }
+
+    public List<Order> getOrders(Long id) {
+        return orderRepository.getOrdersById(id);
     }
 }

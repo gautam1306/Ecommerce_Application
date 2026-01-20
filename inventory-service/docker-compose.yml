@@ -1,7 +1,7 @@
 version: "4"
 services:
   mysql:
-    image: mysql:8.3.0
+    image: mysql
     container_name: inventory_mysql_container
     environment:
       MYSQL_ROOT_PASSWORD: service123

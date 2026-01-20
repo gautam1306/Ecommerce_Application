@@ -1,12 +1,9 @@
 package com.gautam.order.controller;
 
-import com.gautam.order.service.OrderRequest;
+import com.gautam.order.dto.OrderRequest;
 import com.gautam.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/order")
@@ -20,4 +17,8 @@ public class OrderController {
         return "Order has been Placed";
     }
 
+    @GetMapping
+    public String getOrder(@RequestParam(name = "id" ) Long id){
+        return orderService.getOrders(id).toString();
+    }
 }

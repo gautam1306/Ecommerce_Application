@@ -1,4 +1,4 @@
-package com.gautam.order.service;
+package com.gautam.order.dto;
 
 import java.math.BigDecimal;
 
