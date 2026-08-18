@@ -7,7 +7,7 @@ Purpose: give an agent enough structural/behavioral context to work in this repo
 
 A multi-module Maven **Spring Boot microservices** e-commerce backend. Each top-level
 folder is an independent, independently-runnable Spring Boot application (its own
-`pom.xml`, own `mvnw`, own `docker-compose.yml`). There is no parent/aggregator POM —
+`pom.xml`, own `mvnw`). There is no parent/aggregator POM —
 modules are siblings, not a reactor build.
 
 ```
@@ -75,7 +75,7 @@ service's copy independently.
   `RouterFunction` bean per downstream service, each using `.filter(lb("<service-name>"))`
   for load-balanced routing by Eureka service name. Also has `SecurityConfig` enforcing
   OAuth2/JWT resource-server auth (issuer: Keycloak realm `spring-security-microservice`
-  at `localhost:8181`, see `api-gateway/docker-compose.yml` for the Keycloak container).
+  at `localhost:8181`, see `infra/docker-compose.yml` for the Keycloak container).
 
 ## 5. Cross-service call graph (for anyone changing inter-service behavior)
 
@@ -88,15 +88,29 @@ Client → api-gateway (JWT check) → order-service --Feign/LB (via Eureka)--> 
 Only `order-service → inventory-service` is a service-to-service call. product-service
 and inventory-service have no outbound calls to other services.
 
-## 6. Local infra (per-service docker-compose.yml, no root-level compose file)
+## 6. Local infra (centralized in `infra/docker-compose.yml`)
 
-- `product-service/docker-compose.yml` — MongoDB
-- `order-service/docker-compose.yml` — MySQL on 3306 (`OrderService` DB)
-- `inventory-service/docker-compose.yml` — MySQL on 3308 (`InventoryService` DB)
-- `api-gateway/docker-compose.yml` — Keycloak + its own MySQL (on 3310)
+All dependent infrastructure (previously scattered as a separate `docker-compose.yml`
+per service) now lives in a single root-level directory:
 
-There is no single `docker-compose.yml` that starts everything — bring up each
-service's compose file individually, or add a root-level one if asked.
+```
+infra/
+  docker-compose.yml   # mongodb, order-mysql, inventory-mysql, keycloak-mysql, keycloak
+  mysql/order/init.sql       # creates OrderService DB
+  mysql/inventory/init.sql   # creates InventoryService DB
+```
+
+- `mongodb` (27017) — backs product-service
+- `order-mysql` (3306, container `mysql`, DB `OrderService`) — backs order-service
+- `inventory-mysql` (3308, container `inventory_mysql_container`, DB `InventoryService`) — backs inventory-service
+- `keycloak-mysql` (3310) + `keycloak` (8181) — backs api-gateway's OAuth2 resource server
+
+Bring up all dependent infra with a single command from `infra/`:
+```
+docker compose up -d
+```
+There is still no compose file that runs the Spring Boot **applications** themselves —
+only their dependent infra. Run each service locally via `./mvnw spring-boot:run`.
 
 ## 7. Build/test commands (verified)
 

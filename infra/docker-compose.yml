@@ -1,0 +1,84 @@
+version: "3.8"
+
+# Centralized dependent infrastructure for all services in this repo.
+# Previously each service (product-service, order-service, inventory-service,
+# api-gateway) shipped its own docker-compose.yml for its dependent infra
+# (MongoDB / MySQL / Keycloak). Those have been consolidated here so the whole
+# local dev environment can be brought up with a single `docker compose up`
+# from this directory.
+#
+# Service -> infra mapping (ports unchanged from the original per-service files):
+#   product-service    -> mongodb          (27017)
+#   order-service      -> order-mysql      (3306, DB: OrderService)
+#   inventory-service  -> inventory-mysql  (3308, DB: InventoryService)
+#   api-gateway        -> keycloak-mysql (3310) + keycloak (8181)
+
+services:
+  mongodb:
+    image: mongo:7.0.5
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: secret
+      MONGO_INITDB_DATABASE: product-service
+    volumes:
+      - mongo_data:/data/db
+
+  order-mysql:
+    image: mysql:8.3.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: service123
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-data/order:/data/db
+      - ./mysql/order/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  inventory-mysql:
+    image: mysql
+    container_name: inventory_mysql_container
+    environment:
+      MYSQL_ROOT_PASSWORD: service123
+    ports:
+      - "3308:3306"
+    volumes:
+      - ./mysql-data/inventory:/data/db
+      - ./mysql/inventory/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  keycloak-mysql:
+    container_name: keycloak-mysql
+    image: mysql:8.3.0
+    ports:
+      - "3310:3306"
+    volumes:
+      - ./mysql-data/keycloak:/data/db
+    environment:
+      MYSQL_ROOT_PASSWORD: service123
+      MYSQL_DATABASE: keycloak
+      MYSQL_USER: keycloak
+      MYSQL_PASSWORD: keycloak123
+
+  keycloak:
+    container_name: keycloak
+    image: quay.io/keycloak/keycloak:26.3.4
+    command: ["start-dev"]
+    environment:
+      DB_VENDOR: MYSQL
+      DB_ADDR: mysql
+      DB_DATABASE: keycloak
+      DB_PASSWORD: keycloak123
+      DB_PORT: 3310
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8181:8080"
+    volumes:
+      - ./mysql-data/keycloak-import:/opt/keycloak/data/import/
+    depends_on:
+      - keycloak-mysql
+
+volumes:
+  mongo_data: {}
