@@ -7,7 +7,9 @@ import com.gautam.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.gautam.order.exception.OrderNotFoundException;
+import com.gautam.order.exception.OutOfStockException;
+
 import java.util.UUID;
 
 @Service
@@ -25,13 +27,14 @@ public class OrderService {
             orderRepository.save(order);
         }
         else {
-            throw new RuntimeException("Product with sku_code :::: "+ orderRequest.skuCode()+" :::: is out of stock");
+            throw new OutOfStockException("Product with sku_code :::: "+ orderRequest.skuCode()+" :::: is out of stock");
         }
 
 
     }
 
-    public List<Order> getOrders(Long id) {
-        return orderRepository.getOrdersById(id);
+    public Order getOrder(Long id) {
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + id));
     }
 }
