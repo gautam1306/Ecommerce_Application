@@ -2,6 +2,7 @@ package com.gautam.inventory.controller;
 
 import com.gautam.inventory.dto.InventoryRequest;
 import com.gautam.inventory.service.InventoryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class InventoryController {
     }
 
     @PostMapping
-    public boolean addStock(@RequestBody InventoryRequest inventoryRequest){
+    public boolean addStock(@RequestBody @Valid InventoryRequest inventoryRequest){
         return inventoryService.addStock(inventoryRequest);
     }
 

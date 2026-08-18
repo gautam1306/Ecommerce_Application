@@ -12,13 +12,11 @@ public class InventoryService {
     private final InventoryRepository inventoryRepository;
 
     public boolean isInStock(String skuCode,int quantity){
-        skuCode.split(" ");
         return inventoryRepository.existsBySkuCodeAndQuantityIsGreaterThanEqual(skuCode,quantity);
-
     }
 
     public boolean addStock(InventoryRequest inventoryRequest) {
         inventoryRepository.addStock(inventoryRequest.skuCode(), inventoryRequest.quantity());
-        return false;
+        return true;
     }
 }
